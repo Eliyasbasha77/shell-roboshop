@@ -1,5 +1,7 @@
 AMI_ID="ami-0220d79f3f480ecf5"
 SG_ID="sg-0c2e722c75b408fc5" #replace with your id
+ZONE_ID="Z01416561NVDH9FJJ3T1D" #replace with your id 
+DOMAIN_NAME="eliyas.fun"
 
 for instance in $@
 do
@@ -8,10 +10,30 @@ do
     # Get Private ip
     if [ $instance != "frontend" ]; then
         IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
-     # mongodb.eliyas.fun 
+         RECORD_NAME="$instance.$DOMAIN_NAME"     # mongodb.eliyas.fun 
     else
         IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
-        # eliyas.fun 
+         RECORD_NAME="$DOMAIN_NAME" # eliyas.fun 
         echo "$instance: $IP"        
     fi
 done    
+
+  aws route53 change-resource-record-sets \
+    --hosted-zone-id $ZONE_ID \
+    --change-batch '
+    {
+        "Comment": "Updating record set"
+        ,"Changes": [{
+        "Action"              : "UPSERT"
+        ,"ResourceRecordSet"  : {
+            "Name"              : "'$RECORD_NAME'"
+            ,"Type"             : "A"
+            ,"TTL"              : 1
+            ,"ResourceRecords"  : [{
+                "Value"         : "'$IP'"
+            }]
+        }
+        }]
+    }
+    '
+done
