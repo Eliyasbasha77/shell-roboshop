@@ -14,3 +14,4 @@ do
         # eliyas.fun 
         echo "$instance: $IP"        
     fi
+done    
