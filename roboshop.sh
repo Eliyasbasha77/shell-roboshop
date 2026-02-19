@@ -1,3 +1,5 @@
+#!/bin/bash
+
 AMI_ID="ami-0220d79f3f480ecf5"
 SG_ID="sg-0c2e722c75b408fc5" #replace with your id
 ZONE_ID="Z01416561NVDH9FJJ3T1D" #replace with your id 
